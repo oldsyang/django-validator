@@ -19,8 +19,9 @@ Example:
     ConverterExample.register()
     ConverterExample.register('example')
 """
+from datetime import datetime
 
-from .validators import IntegerValidator, NumericValidator
+from .validators import IntegerValidator, NumericValidator, DateValidator
 
 
 class ConverterRegistry(object):
@@ -103,7 +104,9 @@ class StringConverter(BaseConverter):
 
     @staticmethod
     def convert(key, string):
-        return string
+        if string is None:
+            return None
+        return str(string)
 
     class Meta:
         name = ('string', 'str')
@@ -170,3 +173,20 @@ class FileConverter(BaseConverter):
 
     class Meta:
         name = ('file',)
+
+
+class DateConverter(BaseConverter):
+    """
+    Pass the date parameter.
+    """
+    date_validator = DateValidator()
+
+    @staticmethod
+    def convert(key, value):
+        if value is None:
+            return None
+        DateConverter.date_validator(key, {key: value})
+        return datetime.strptime(value, '%Y-%m-%d').date()
+
+    class Meta:
+        name = ('date',)

@@ -2,9 +2,10 @@
 
 Inherit BaseValidator to implement the custom validators.
 """
+from datetime import datetime
+
 import os
 import re
-
 from django.core.files.base import File
 from django.utils.translation import ugettext_lazy as _
 
@@ -392,6 +393,27 @@ class ExtNotInValidator(ExtInValidator):
 
     def is_valid(self, value, params):
         return value not in self.choices
+
+
+class DateValidator(BaseRegexValidator):
+    """
+    Inherit regex validator to confirm numbers.
+    """
+    code = 'numeric_validator'
+    message = _('The {key} must be a yyyy-MM-dd or yyyy-M-d.')
+    regex = re.compile('(\d{4}-\d{1,2}-\d{1,2})')
+
+    def __init__(self, message=None):
+        super(DateValidator, self).__init__(message)
+
+    def is_valid(self, value, params):
+        if self.regex.match(value):
+            try:
+                datetime.strptime(value, '%Y-%m-%d').date()
+            except ValueError:
+                return False
+            return True
+        return False
 
 
 # Register all validators
